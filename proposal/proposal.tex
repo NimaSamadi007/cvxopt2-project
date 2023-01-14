@@ -31,7 +31,7 @@
 \maketitle
 
 \begin{abstract}
-
+Edge Intelligence (EI) has emerged as a promising area in recent years. In order to mitigate some of the challenges associated with using AI in cloud servers, EI utilizes edge computing to deliver AI services to users. The dominant approach to creating AI services is deep neural networks (DNN) which have shown significant results in computer vision, language processing, robotics, etc., tasks. In the cloud, these models run on powerful servers, but they are slow to respond, have privacy concerns, and have low reliability. EI can help to overcome these obstacles. However, edge servers are typically constrained in terms of processing power and energy. Therefore, special care must be taken to deploy DNN models on edge servers. Our purpose in this project is to partition DNN models and place each part either on edge servers or the user device. We use optimization approaches to analyze this problem. 
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -70,7 +70,13 @@ In some researches like \cite{liu2021deep}, to deal with edge computing's challe
 selection as a Markov Decision Process (MDP). The difficulty of this problem is that achieving long-term optimum requires future knowledge, such as usermobility, serverworkload, etc, which is not known a priori and they for dealing to this issue, they have proposed  Deep Reinforcement Learning (DRL). Although, this technique can reach to good solutions but it's crucial to consider that the amount of time and computations to train DRL models is considerable. Besides, the DRL model should be trained periodically thus it seems this method can't be use in many situations specially in real-time application.
 
 \section{Methodology}
-This is my method
+We analyze this problem from an optimization point of view. This technique is used in \cite{DBLP:journals/corr/abs-2006-16423}, \cite{9527097}, and \cite{9512507} articles. Every DNN model can be thought of as a directed graph in which nodes are operations and edges are data (tensor in software terms). The direction of the edge shows the dependency between nodes. One can model this graph with three possible granularities: 1)neuron, 2)operation, and 3)layer. With neuron granularity, the dimension of the problem is quite high and the number of connections between neurons prevents partitioning the graph effectively. Layer abstraction, however, results in a small graph, which makes parallelization difficult. Therefore, we use operation granularity in this project. 
+
+Placement problems consist of two subproblems: 1)graph partitioning and 2)task assignment. Graph partitioning requires segmentation points that enable parallel execution of each subgraph and minimizes dependency between subgraphs. When subgraphs are created, they must be processed on the user device or an edge server. This task assignment problem can be solved via optimization techniques.
+
+Let $G(V, E)$ to be the model graph and $\mathcal{P} = \{p_1, p_2, \cdots p_k\}$ be the list of $k$ processors. A model placement means finding the set of $\{(p_1, s_1), (p_2, s_2), \cdots, (p_k, s_k)\}$, where each $s_i$ is a subpraph and all $s_i$ form a partition of graph. In other words, $\bigcup s_i = V$, and $\bigcap s_i = \emptyset$. Among all feasible points, we choose one that minimizes total latency of model execution. The objective function depends on how latency is defined and will be the subject of project itself.
+
+We'll propose a model placement algorithm that considers dynamic changes in the environment, edge servers, and the model itself. This algorithm will be simulated in various scenarios, and results will be compared with realated works.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,citation.bib}
