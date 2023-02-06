@@ -11,8 +11,7 @@
 \usepackage{graphicx}
 \usepackage{lipsum}
 \usepackage{cite}
-\usepackage{tikz}
-\usetikzlibrary[arrows.meta]
+\usepackage{hyperref}
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 % updated with editorial comments 8/9/2021
 
@@ -183,7 +182,7 @@ To solve this problem and simulate it, problem \ref{final_form} is represented i
 minimize \, \, & \boldsymbol{p}^T \boldsymbol{z} + \boldsymbol{q}^T \boldsymbol{w} \\
 s.t.  \, \, & \boldsymbol{S_1} \boldsymbol{z} \leq 0 \, , \quad -\boldsymbol{S_2} \boldsymbol{z} \leq 0 \nonumber \\
 \quad & \boldsymbol{L}\boldsymbol{z} \leq \boldsymbol{h} \nonumber \\
-\quad &  \boldsymbol{E} \boldsymbol{z} = \boldsymbol{1}_{(m+1)(n-1)}  \nonumber \\
+\quad &  \boldsymbol{E} \boldsymbol{z} = \boldsymbol{1}_{n}  \nonumber \\
 \quad &  \boldsymbol{M} \boldsymbol{z} \leq \boldsymbol{M_d} \nonumber \\
 \quad &  \boldsymbol{U} \boldsymbol{z} + \boldsymbol{w} \leq 0 \, , \boldsymbol{V} \boldsymbol{z} + \boldsymbol{w} \leq 0 \nonumber \\
 \quad &  \boldsymbol{G} \boldsymbol{z} - \boldsymbol{w} \leq \boldsymbol{1}_{(m+1)(n-1)} \nonumber \\
@@ -192,10 +191,33 @@ s.t.  \, \, & \boldsymbol{S_1} \boldsymbol{z} \leq 0 \, , \quad -\boldsymbol{S_2
 In this problem, $\boldsymbol{z}$ and $\boldsymbol{w}$ are optimization variables. Other parameters are derived from problem parameters and equation \ref{final_form}. 
 
 We simulated this problem with the following input parameters:
-\begin{equation}
-s
-\end{equation}
+\begin{align}
+&m = 2, \, n = 3, \, K = 2 \, , \boldsymbol{C} = \begin{bmatrix}
+100 & 200 & 200 \\
+100 & 200 & 200 \\
+100 & 200 & 200
+\end{bmatrix} \\
+&\boldsymbol{R} = \begin{bmatrix}
+10 & 20 & 30 \\
+10 & 20 & 30
+\end{bmatrix} \, , \boldsymbol{m_l} = \begin{bmatrix}
+100 & 100 & 300
+\end{bmatrix} \, , \nonumber \\
+&\boldsymbol{m_d} = \begin{bmatrix}
+500 & 500 & 500
+\end{bmatrix} \, , \boldsymbol{\alpha} = \begin{bmatrix}
+50 & 60 & 100 \nonumber
+\end{bmatrix}
+\end{align}
+We choosed a simple problem to show the concept of our approach. We used cvxpy and MOSEK to solve this problem. MOSEK is a commersial optimization tool that can handle large scale problems efficiently. The simulation code is sent along with this report. Also, whole content of project can be accesed thorugh \href{https://github.com/NimaSamadi007/cvxopt2-project}{this github repository}. To run the simulation. you need cvxpy, numpy and MOSEK license. 
 
+It's obvious that all 3 layers must be placed on last device (edge server 2) as it eliminates the transmission cost and can handle all layers simultaneously. The total delay in this case is $\mathrm{delay} = \frac{200}{100}+\frac{200}{100}+\frac{200}{100}=6$ and is optimal. When simulation is run, the following result is achieved:
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.5in]{assets/opt-res.png}
+\caption{Simulation result}
+\end{figure}
+Which proves our observation. Note that our main objective in this project was to formulate this problem in a simple form not simulation. However, we run the simulation to show the correctness of our formulation. 
 \section{Conclusion}
 In this project, we investigated a DNN model placement problem with an optimization approach. DNN models are at the heart of edge intelligence and running these models efficiently is an important problem. We formulated the problem as a linear binary programming problem that can be solved with various optimization techniques, such as branch and bound. Also, a simulation of a simple scenario was done with MOSEK, and the results were discussed. Our contributions can be summarized as follows:
 \begin{enumerate}
