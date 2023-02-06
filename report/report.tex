@@ -11,6 +11,8 @@
 \usepackage{graphicx}
 \usepackage{lipsum}
 \usepackage{cite}
+\usepackage{tikz}
+\usetikzlibrary[arrows.meta]
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 % updated with editorial comments 8/9/2021
 
@@ -157,7 +159,7 @@ s.t. \quad & \sum_{i=0}^{n-1} c_{ij} x_{ij} \leq K \alpha_j \, , j \in [0, m] \n
 \end{align}
 The approximated problem is clearly a quadratic integer (binary) programming problem. Quadratic form can be expressed as $z^TQz$ which $Q$ is a symmetric matrix with all zero on its main diagonal. Due to the non-positive semi-definite nature of this matrix, we cannot use a more general solver. Furthermore, most solvers can deal with mixed-integer linear programming problems but fail to solve an integer problem with the quadratic form. Hence, we simplify this problem further by converting it to a binary (integer) programming problem, which can be solved by various optimization techniques. 
 
-The main idea is to introduce more binary variables that replace the $y_{ij}x_{(i+1)j}$ product. The product of two binary variables is also a binary variable. Therfore, by defining $w_{ij} = x_{(i+1)j}y_{ij} \, , i=0,\cdots,n-2 \, , j=0,\cdots,m$, objective function can be converted to a linear form. Also two set of constraints are added to the approximated problem. If $x_{(i+1)j} = 0$, then $w_{ij} = 0$ too. This is a forcing constraint which is a linear constraint. The same relationships hold for $y_{ij}$, too. Finally, by combining these modifications, our optimization problem can be expressed as:
+The main idea is to introduce more binary variables that replace the $y_{ij}x_{(i+1)j}$ product. The product of two binary variables is also a binary variable. Therfore, by defining $w_{ij} = x_{(i+1)j}y_{ij} \, , i=0,\cdots,n-2 \, , j=0,\cdots,m$, objective function can be converted to a linear form. Also two set of constraints are added to the approximated problem. If $x_{(i+1)j} = 0$, then $w_{ij} = 0$ too. This is a forcing constraint which is a linear constraint. The same relationships hold for $y_{ij}$, too. Also, if both $x_{(i+1)j}$ and $y_{ij}$ equal to $1$, then $w_{ij} = 1$ too. Finally, by combining these modifications, our optimization problem can be expressed as:
 \begin{align}
 \label{final_form}
 minimize &\sum_{j=0}^{m}\sum_{i=0}^{n-1} x_{ij}\frac{c_{ij}}{\alpha_j} + \frac{1}{2}\sum_{j=0}^{m} \sum_{i=0}^{n-2} w_{ij} r_{ij} \\
@@ -168,37 +170,40 @@ s.t. \quad & \sum_{i=0}^{n-1} c_{ij} x_{ij} \leq K \alpha_j \, , j \in [0, m] \n
 \quad & x_{(i+1)j}-x_{ij} \geq -y_{ij} \, , i \in [0, n-2]; \, j \in[0,m]  \nonumber \\
 \quad & z_{ij} \leq y_{ij} \, , i \in [0, n-2]; \, j \in [0, m]  \nonumber \\
 \quad & z_{ij} \leq x_{(i+1)j} \, , i \in [0, n-2]; \, j \in [0, m]  \nonumber \\
+\quad & z_{ij} \geq x_{(i+1)j} + y_{ij} - 1 \, , i \in [0, n-2]; \, j \in [0, m]  \nonumber \\
 \quad & x_{ij} \in \{0,1\} \, , i \in [0, n-1]; \, j \in [0,m] \nonumber \\
 \quad & y_{ij}, w_{ij} \in \{0,1\} \, , i \in [0, n-2]; \, j \in [0,m] \nonumber
 \end{align}
 We ended up having a binary linear programming problem that most solvers can solve. This conversion involves a trade-off between increasing the optimization space's dimension and simplifying the problem. We increased the number of variables with the cost of solving the problem easily and having a simpler form.
 
 \section{Simulation}
-To solve this problem and simulate it, problem \ref{final_form} is represented in matrix and vector format. The detail of this representation is not discussed in this section, but you can refer to appendix for more information. Equivalent form in matrix format is,
-
+To solve this problem and simulate it, problem \ref{final_form} is represented in matrix and vector format. The detail of this representation is not discussed in this section, but you can refer to simulation code for more information. Equivalent form in matrix format is,
 \begin{align}
 \label{matrix_form}
-minimize \, \, & \boldsymbol{p}^T \boldsymbol{z} + \boldsymbol{r}^T \boldsymbol{w} \\
+minimize \, \, & \boldsymbol{p}^T \boldsymbol{z} + \boldsymbol{q}^T \boldsymbol{w} \\
 s.t.  \, \, & \boldsymbol{S_1} \boldsymbol{z} \leq 0 \, , \quad -\boldsymbol{S_2} \boldsymbol{z} \leq 0 \nonumber \\
 \quad & \boldsymbol{L}\boldsymbol{z} \leq \boldsymbol{h} \nonumber \\
-\quad &  \boldsymbol{q}^T \boldsymbol{z} = \boldsymbol{1}_{(m+1)(n-1)}  \nonumber \\
-\quad &  \boldsymbol{M_l} \boldsymbol{z} \leq \boldsymbol{M_d} \nonumber \\
-\quad &  \boldsymbol{z} \in \{0, 1\}^{(m+1)(2n-1)} \, , \boldsymbol{w} \in \{0, 1\}^{(m+1)(n-1)} \nonumber \\
-\quad &  \boldsymbol{U} \boldsymbol{z} + \boldsymbol{w} \leq 0 \, , \boldsymbol{V} \boldsymbol{z} + \boldsymbol{w} \leq 0 \nonumber
+\quad &  \boldsymbol{E} \boldsymbol{z} = \boldsymbol{1}_{(m+1)(n-1)}  \nonumber \\
+\quad &  \boldsymbol{M} \boldsymbol{z} \leq \boldsymbol{M_d} \nonumber \\
+\quad &  \boldsymbol{U} \boldsymbol{z} + \boldsymbol{w} \leq 0 \, , \boldsymbol{V} \boldsymbol{z} + \boldsymbol{w} \leq 0 \nonumber \\
+\quad &  \boldsymbol{z} \in \{0, 1\}^{(m+1)(2n-1)} \, , \boldsymbol{w} \in \{0, 1\}^{(m+1)(n-1)} \nonumber
 \end{align}
+In this problem, $\boldsymbol{z}$ and $\boldsymbol{w}$ are optimization variables. Other parameters are derived from problem parameters and equation \ref{final_form}. 
+
+We simulated this problem with the following input parameters:
+\begin{equation}
+s
+\end{equation}
 
 \section{Conclusion}
 In this project, we investigated a DNN model placement problem with an optimization approach. DNN models are at the heart of edge intelligence and running these models efficiently is an important problem. We formulated the problem as a linear binary programming problem that can be solved with various optimization techniques, such as branch and bound. Also, a simulation of a simple scenario was done with MOSEK, and the results were discussed. Our contributions can be summarized as follows:
 \begin{enumerate}
 \item{Optimization approaches were applied to an industrial problem}
+\item{Defining a hyperparameter to control maximum inference time of the model in total ($K$)}
 \item{Approximation of the original problem and converting it to a linear form}
 \item{Simulation of the problem with MOSEK}
 \end{enumerate}
 Some of the assumptions in this project can be relaxed in future works. DNN model can be generalized to include more sophisticated architectures. Transmission cost between devices must also be a function of the current layer. More simulations must be done and timing results must be compared.
-
-{\appendix[Complete Matrix Representation]
-Here we will show complete matrix repr.
-}
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,citation.bib}
